@@ -1,0 +1,4 @@
+/home/felipeweilemann/Git/cpp_playground/build/CMakeFiles/cpp_playground.dir
+/home/felipeweilemann/Git/cpp_playground/build/CMakeFiles/adaptware.dir
+/home/felipeweilemann/Git/cpp_playground/build/CMakeFiles/edit_cache.dir
+/home/felipeweilemann/Git/cpp_playground/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,3 @@
+/home/felipeweilemann/Git/cpp_playground/cmake-build-debug/CMakeFiles/cpp_playground.dir
+/home/felipeweilemann/Git/cpp_playground/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/felipeweilemann/Git/cpp_playground/cmake-build-debug/CMakeFiles/rebuild_cache.dir
