@@ -266,8 +266,23 @@ CMakeFiles/adaptware.dir/Adaptware.cpp.o: ../Adaptware.cpp \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_vector.h \
   /usr/include/c++/11/bits/stl_bvector.h \
-  /usr/include/c++/11/bits/vector.tcc
+  /usr/include/c++/11/bits/vector.tcc \
+  ../AnyMap.hpp \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
+  /usr/include/c++/11/any \
+  ../IsStreamable.hpp
 
+
+/usr/include/c++/11/bits/stl_multimap.h:
+
+/usr/include/c++/11/bits/stl_map.h:
+
+/usr/include/c++/11/map:
+
+../AnyMap.hpp:
 
 /usr/include/c++/11/bits/vector.tcc:
 
@@ -362,6 +377,8 @@ CMakeFiles/adaptware.dir/Adaptware.cpp.o: ../Adaptware.cpp \
 /usr/include/c++/11/ext/alloc_traits.h:
 
 /usr/include/x86_64-linux-gnu/bits/sched.h:
+
+../IsStreamable.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
@@ -484,6 +501,8 @@ CMakeFiles/adaptware.dir/Adaptware.cpp.o: ../Adaptware.cpp \
 /usr/include/x86_64-linux-gnu/bits/confname.h:
 
 /usr/include/c++/11/ostream:
+
+/usr/include/c++/11/any:
 
 /usr/include/c++/11/bits/unique_ptr.h:
 
@@ -672,6 +691,8 @@ CMakeFiles/adaptware.dir/Adaptware.cpp.o: ../Adaptware.cpp \
 /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
 
 /usr/include/asm-generic/errno.h:
+
+/usr/include/c++/11/bits/stl_tree.h:
 
 /usr/include/syscall.h:
 

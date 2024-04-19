@@ -4,6 +4,9 @@
 #include <memory>
 #include <algorithm>
 
+#include "AnyMap.hpp"
+#include "IsStreamable.hpp"
+
 template<typename T>
 class Message {
 public:
@@ -32,7 +35,7 @@ public:
     virtual ~ISubscriber() {}
 };
 
-class IManager {
+class IPubSubManager {
 public:
     template<typename T, typename Dummy = void>
     void registerSubscriber(std::shared_ptr<ISubscriber<T>> subscriber, std::shared_ptr<Topic> topic) {
@@ -55,7 +58,7 @@ public:
     virtual std::shared_ptr<Topic> getTopic(const std::string& name) = 0;
     virtual void start() = 0;
     virtual void stop() = 0;
-    virtual ~IManager() {}
+    virtual ~IPubSubManager() {}
 };
 
 template<typename T>
@@ -69,16 +72,17 @@ public:
 template<>
 class Publisher<std::string> : public IPublisher<std::string> {
 public:
-    Publisher(std::shared_ptr<std::string> &message_data,
-        std::shared_ptr<ISubscriber<std::string>> last_string_subscriber) : 
-    message_data(message_data), last_string_subscriber(last_string_subscriber) {}
+    Publisher(std::shared_ptr<ISubscriber<std::string>>& subscriber) : 
+    subscriber(subscriber) {}
+
     void publish(const Message<std::string>& message) override {
-        // *message_data = message.data;
-        last_string_subscriber->receive(message);
+        if(subscriber){
+                subscriber->receive(message);
+            }
     }
 private:
     std::shared_ptr<std::string> message_data;
-    std::shared_ptr<ISubscriber<std::string>> last_string_subscriber;
+    std::shared_ptr<ISubscriber<std::string>> subscriber;
 };
 
 template<typename T>
@@ -86,46 +90,58 @@ class Subscriber : public ISubscriber<T> {
 public:
     void receive(const Message<T>& message) override {
         // Implementation of receive message
+        if (IsStreamable<T>::value){
+            std::cout << message.data << std::endl;
+        }
     }
 };
 
-template<>
-class Subscriber<std::string> : public ISubscriber<std::string> {
+template<typename T>
+class Subscriber2 : public ISubscriber<T> {
 public:
-    void receive(const Message<std::string>& message) override {
-        std::cout << message.data <<std::endl;
+    void receive(const Message<T>& message) override {
+        // Implementation of receive message
+        if (IsStreamable<T>::value){
+            std::cout << "Message data: " << message.data << std::endl;
+        }
     }
 };
 
 
-class PubSubManager : public IManager {
+class PubSubManager : public IPubSubManager {
 private:
     std::list<std::shared_ptr<Topic>> topics;
     // std::list<std::shared_ptr<ISubscriber>> subscribers;
     // std::list<std::shared_ptr<IPublisher>> publishers;
-    std::shared_ptr<std::string> message_string;
-    std::shared_ptr<ISubscriber<std::string>> last_string_subscriber;
+    AnyMap subscribers;
+    AnyMap publishers;
 
 public:
     template<typename T>
     void registerSubscriber(std::shared_ptr<ISubscriber<T>> subscriber, std::shared_ptr<Topic> topic){
         // Implementation for registering a subscriber
+        subscribers.set(topic->name, subscriber);
     }
 
     template<typename T>
     void unregisterSubscriber(std::shared_ptr<ISubscriber<T>> subscriber) {
         // Implementation for unregistering a subscriber
+        subscribers.removeByValue<ISubscriber<T>>(subscriber);
     }
 
     template<typename T>
     std::shared_ptr<IPublisher<T>> createPublisher(std::shared_ptr<Topic> topic) {
         // Implementation for creating a publisher
-        return std::make_shared<Publisher<T>>();
+        auto publisher = std::make_shared<Publisher<T>>();
+        publishers.set(topic->name, publisher);
+
+        return publisher;
     }
 
     template<typename T>
     void unregisterPublisher(std::shared_ptr<IPublisher<T>> publisher) {
         // Implementation for unregistering a publisher
+        publishers.removeByValue<IPublisher<T>>(publisher);
     }
 
     void createTopic(const std::string& name) override {
@@ -154,15 +170,16 @@ public:
     }
 };
 
-template<>
-void PubSubManager::registerSubscriber(std::shared_ptr<ISubscriber<std::string>> subscriber, std::shared_ptr<Topic> topic){
-    last_string_subscriber = subscriber;
-}
+// template<>
+// void PubSubManager::registerSubscriber(std::shared_ptr<ISubscriber<std::string>> subscriber, std::shared_ptr<Topic> topic){
+//     last_string_subscriber = subscriber;
+// }
 
 template <>
 std::shared_ptr<IPublisher<std::string>> PubSubManager::createPublisher(std::shared_ptr<Topic> topic) {
     // Implementation for creating a publisher
-    return std::make_shared<Publisher<std::string>>(message_string, last_string_subscriber);
+    auto subscriber = subscribers.get<std::shared_ptr<ISubscriber<std::string>>>(topic->name);
+    return std::make_shared<Publisher<std::string>>(subscriber);
 }
 
 
@@ -171,12 +188,23 @@ int main() {
     std::shared_ptr<PubSubManager> manager = std::make_shared<PubSubManager>();
     manager->createTopic("Example");
     std::shared_ptr<Topic> topic = manager->getTopic("Example");
+
+    manager->createTopic("Example2");
+    std::shared_ptr<Topic> topic2 = manager->getTopic("Example2");
+
     std::shared_ptr<Subscriber<std::string>> subscriber = std::make_shared<Subscriber<std::string>>();
     manager->registerSubscriber<std::string>(subscriber, topic);
 
     Message<std::string> message{"Hello, World!", "2023-04-18T12:34:56", "123456"};
     auto publisher = manager->createPublisher<std::string>(topic);
     publisher->publish(message);
+
+    std::shared_ptr<Subscriber2<std::string>> subscriber2 = std::make_shared<Subscriber2<std::string>>();
+    manager->registerSubscriber<std::string>(subscriber2, topic2);
+
+    auto publisher2 = manager->createPublisher<std::string>(topic2);
+    publisher2->publish(message);
+
 
     return 0;
 }
